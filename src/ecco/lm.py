@@ -443,7 +443,11 @@ class LM(object):
             output = self.model(**input_tokens, return_dict=True, use_cache=False)
             lm_head = self.model.lm_head
         elif self.model_type == 'enc-dec':
-            decoder_input_ids = self.model._prepare_decoder_input_ids_for_generation(input_tokens['input_ids'], None, None)
+            if version.parse(transformers.__version__) >= version.parse('4.13'):
+                decoder_input_ids = self.model._prepare_decoder_input_ids_for_generation(input_tokens['input_ids'].shape[0], None, None)
+            else:
+                decoder_input_ids = self.model._prepare_decoder_input_ids_for_generation(input_tokens['input_ids'], None, None)
+            # decoder_input_ids = self.model._prepare_decoder_input_ids_for_generation(input_tokens['input_ids'], None, None)
             output = self.model(**input_tokens, decoder_input_ids=decoder_input_ids, return_dict=True, use_cache=False)
             lm_head = self.model.lm_head
         else:
